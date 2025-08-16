@@ -1,14 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Task, Thought, AIInsight } from '../../types';
 
-const API_KEY = import.meta.env?.VITE_GEMINI_API_KEY;
-
-let ai: GoogleGenAI | undefined;
-if (API_KEY) {
-  ai = new GoogleGenAI({ apiKey: API_KEY });
-} else {
-  console.warn("VITE_GEMINI_API_KEY environment variable not set. AI Coordinator will be disabled.");
-}
+// API_KEY is sourced from process.env.API_KEY as per guidelines.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 /**
  * Orchestrates AI logic across the entire application, ensuring context is shared
@@ -21,7 +15,7 @@ class AICoordinator {
   }
 
   async generateCrossSystemInsights(thoughts: Thought[], tasks: Task[]): Promise<AIInsight[]> {
-    if (!ai || thoughts.length === 0 || tasks.length === 0) return [];
+    if (thoughts.length === 0 || tasks.length === 0) return [];
     
     const thoughtSummary = thoughts.map(t => `- Thought: ${t.content}`).join('\n');
     const taskSummary = tasks.map(t => `- Task: ${t.title} (${t.completed ? 'completed' : 'active'})`).join('\n');
@@ -76,7 +70,6 @@ class AICoordinator {
   }
 
   async suggestTasksFromThoughts(thoughts: Thought[]): Promise<Thought[]> {
-      if (!ai) return [];
       const actionableThoughts = thoughts.filter(t => !t.convertedToTaskId);
       if (actionableThoughts.length < 3) return [];
 

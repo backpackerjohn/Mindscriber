@@ -1,22 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const API_KEY = import.meta.env?.VITE_GEMINI_API_KEY;
-
-let ai: GoogleGenAI | undefined;
-
-if (API_KEY) {
-  ai = new GoogleGenAI({ apiKey: API_KEY });
-} else {
-  console.warn("VITE_GEMINI_API_KEY environment variable not set. AI features will be disabled.");
-}
+// API_KEY is sourced from process.env.API_KEY as per guidelines.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateTags = async (thoughtContent: string): Promise<string[]> => {
-  if (!ai) {
-    // Fallback if API key is not available
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate AI delay
-    return [];
-  }
-
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",

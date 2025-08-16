@@ -3,14 +3,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { SubTask, ClarifyingQuestion } from "../../../types";
 
-const API_KEY = import.meta.env?.VITE_GEMINI_API_KEY;
-
-let ai: GoogleGenAI | undefined;
-if (API_KEY) {
-  ai = new GoogleGenAI({ apiKey: API_KEY });
-} else {
-  console.warn("VITE_GEMINI_API_KEY environment variable not set. AI features will be disabled.");
-}
+// API_KEY is sourced from process.env.API_KEY as per guidelines.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const clarifyingQuestionsSchema = {
     type: Type.OBJECT,
@@ -36,11 +30,6 @@ const clarifyingQuestionsSchema = {
 };
 
 export async function generateClarifyingQuestions(taskTitle: string): Promise<Omit<ClarifyingQuestion, 'id'>[]> {
-    if (!ai) {
-        console.warn("VITE_GEMINI_API_KEY environment variable not set. AI question generation is disabled.");
-        return [];
-    }
-    
     try {
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -104,11 +93,6 @@ const refinedSubtasksSchema = {
 
 
 export async function refineSubtasks(taskTitle: string, answers: Record<string, string>): Promise<Pick<SubTask, 'content' | 'timeEstimate' | 'difficulty'>[]> {
-    if (!ai) {
-        console.warn("VITE_GEMINI_API_KEY environment variable not set. AI subtask refinement is disabled.");
-        return [];
-    }
-
     const answersString = Object.entries(answers)
         .map(([question, answer]) => `- For the question "${question}", the user chose: "${answer}".`)
         .join('\n');

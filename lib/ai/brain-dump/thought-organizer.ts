@@ -1,11 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Thought, AIThoughtGroup } from "../../../types";
 
-const API_KEY = import.meta.env?.VITE_GEMINI_API_KEY;
-let ai: GoogleGenAI | undefined;
-if (API_KEY) {
-    ai = new GoogleGenAI({ apiKey: API_KEY });
-}
+// API_KEY is sourced from process.env.API_KEY as per guidelines.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const responseSchema = {
     type: Type.OBJECT,
@@ -32,11 +29,6 @@ const responseSchema = {
 };
 
 export async function clusterThoughts(thoughts: Thought[]): Promise<Omit<AIThoughtGroup, 'thoughts'>[]> {
-    if (!ai) {
-        console.warn("VITE_GEMINI_API_KEY environment variable not set. AI clustering is disabled.");
-        return [];
-    }
-    
     const thoughtContent = thoughts.map(t => `ID: ${t.id}\nContent: ${t.content}`).join('\n\n');
 
     try {

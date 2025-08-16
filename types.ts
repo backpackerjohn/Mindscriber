@@ -1,12 +1,4 @@
 
-declare global {
-  interface ImportMeta {
-    readonly env: {
-      readonly VITE_GEMINI_API_KEY?: string;
-    };
-  }
-}
-
 export interface Thought {
   id: string;
   content: string;

@@ -3,11 +3,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { SubTask } from "../../../types";
 
-const API_KEY = import.meta.env?.VITE_GEMINI_API_KEY;
-let ai: GoogleGenAI | undefined;
-if (API_KEY) {
-    ai = new GoogleGenAI({ apiKey: API_KEY });
-}
+// API_KEY is sourced from process.env.API_KEY as per guidelines.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const enhancedSubtaskSchema = {
     type: Type.OBJECT,
@@ -39,11 +36,6 @@ const enhancedSubtaskSchema = {
 };
 
 export async function generateSubtasks(taskTitle: string): Promise<Pick<SubTask, 'content' | 'timeEstimate' | 'difficulty'>[]> {
-    if (!ai) {
-        console.warn("VITE_GEMINI_API_KEY environment variable not set. AI subtask generation is disabled.");
-        return [];
-    }
-
     try {
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
